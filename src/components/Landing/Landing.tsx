@@ -1,5 +1,7 @@
 import { useState } from "react";
 import CodeEditorWindow from "../CodeEditorWindow/CodeEditor";
+import Grid from "../Grid/Grid";
+import debugService, { Data } from "../../services/debug-service.ts"
 
 const javascriptDefault = `/**
 * Problem: Binary Search: Search a sorted array for a target value.
@@ -33,6 +35,7 @@ console.log(binarySearch(arr, target));
 
 const Landing = () => {
   const [code, setCode] = useState(javascriptDefault);
+  const [debug, setDebug] = useState<Data[]>([])
   // const [theme, setTheme] = useState("cobalt");
   // const [customInput, setCustomInput] = useState("");
   // const [language, setLanguage] = useState(languageOptions[0]);
@@ -57,6 +60,18 @@ const Landing = () => {
     }
   };
 
+  const handleExecute = () => {
+    const data = {
+      code: code
+    };
+    debugService.getDebugResponse(data)
+      .then(res => {
+        console.log(res.data)
+        setDebug(res.data)
+      })
+      .catch(err => console.log(err))
+  }
+
   /*   function handleThemeChange(th) {
     const theme = th;
     console.log("theme...", theme);
@@ -76,34 +91,30 @@ const Landing = () => {
         <div className="px-4 py-2"></div>
       </div>
       <div className="flex flex-row space-x-4 items-start px-4 py-4">
-        <div className="flex flex-col w-full h-full justify-start items-end">
+        <div className="flex flex-col w-full h-full justify-start items-start">
           <CodeEditorWindow
             code={code}
             onChange={onChange}
             language={"Python"}
             theme={""}
           />
-        </div>
-
-        <div className="right-container flex flex-shrink-0 w-[30%] flex-col">
-          {/*  <OutputWindow outputDetails={outputDetails} /> */}
-          <div className="flex flex-col items-end">
-            {/* <CustomInput
-              customInput={customInput}
-              setCustomInput={setCustomInput}
-            /> */}
+          <div className="left-container flex justify-left flex-shrink-0 w-[30%]">
+            {/*  <OutputWindow outputDetails={outputDetails} /> */}
             <button
               // onClick={handleCompile}
               disabled={!code}
               className={
                 "mt-4 border-2 border-black z-10 rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-4 py-2 hover:shadow transition duration-200 bg-white flex-shrink-0"
               }
+              onClick={handleExecute}
             >
               {"Compile and Execute"}
             </button>
+            {/*     {outputDetails && <OutputDetails outputDetails={outputDetails} />} */}
           </div>
-          {/*     {outputDetails && <OutputDetails outputDetails={outputDetails} />} */}
         </div>
+
+        <Grid debugOutput={debug} />
       </div>
     </>
   );
